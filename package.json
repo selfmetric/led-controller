@@ -1,0 +1,16 @@
+{
+  "name": "led",
+  "version": "0.0.1",
+  "description": "Led Control",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.13.4",
+    "i2c-bus": "^1.0.2",
+    "pca9685": "^2.0.1"
+  }
+}
