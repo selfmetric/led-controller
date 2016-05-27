@@ -18,34 +18,40 @@ pwm = new dr.default(options, function() {
 });
 
 app.get('/', function(req, res) { res.send('Led Controller'); });
-app.get('/sleep', function(req, res) { set_all(g_led_param_to_pulse('10')); });
+app.get('/sleep', function(req, res) { set_all(g_led_param_to_pulse('10')); res.send("Sleep"); });
 app.get('/:channel/:intensity', set_light );
-app.get('/rgb/:r/:g/:b', set_rgb );
+app.get('/rgb/:r/:g/:b/:a', set_rgb );
 
 app.listen(3000, function() { console.log('Listening on port 3000'); });
 
 
 function set_rgb(req, res) {
-	var r =  validete_input( inverse(parseFloat( req.param('r') )));
-	var g = req.param('g');
-	var b = req.param('b');
+	var r = validete_input( inverse(parseFloat( req.params.r )));
+	var g = validete_input( inverse(parseFloat( req.params.g )));
+	var b = validete_input( inverse(parseFloat( req.params.b )));
+	var a = inverse(parseFloat( req.params.a ));
 
-	pwm.setDutyCycle(12, r);
-	pwm.setDutyCycle(13, g);
-	pwm.setDutyCycle(14, b);
+	pwm.setDutyCycle(12, r * a);
+	pwm.setDutyCycle(13, g * a);
+	pwm.setDutyCycle(14, b * a);
+
+	var in_str = "RGB in to (" + r + "," + g + "," + b + "," + a + ")";
+	var out_str = "RGB out to (" + (r * a) + "," + (g*a) + "," + (b*a) + "," + a + ")";
+
+	res.send(in_str + "\n" + out_str);
 }
 
 function set_light(req, res) {
-  var channel = req.param('channel');
-  var intensity = req.param('intensity');
+  var ch = req.params.channel;
+  var intensity = req.params.intensity;
 
   var v_intensity = g_led_param_to_pulse(intensity);
 
-  if(channel == 0) {
-	  set_all( v_channel );
+  if(ch == 0) {
+	  set_all( v_intensity );
   }
   else {
-	  pwm.setDutyCycle(channel, v_intensity);
+	  pwm.setDutyCycle(ch, v_intensity);
   }
 
   res.send("Channel" + " {" + channel + "} " + " is set to " + v_intensity);
@@ -71,7 +77,7 @@ function g_led_param_to_pulse(intensity)
 
 function inverse(val)
 {
-	return 1 - val;
+	return 1.0 - val;
 }
 
 function validete_input(val)
