@@ -15,7 +15,7 @@ pwm = new dr.default(options, function() {
 	console.log("Initialization done");
 });
 
+var x = 1.0;
 
-
-pwm.setDutyCycle(3, 0.9);
+pwm.setDutyCycle(3, x);
 

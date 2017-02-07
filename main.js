@@ -17,7 +17,7 @@ pwm = new dr.default(options, function() {
 	console.log("PWM - Initialization done");
 });
 
-app.get('/', function(req, res) { res.send('Led Controller'); });
+app.get('/', function(req, res) { res.send('Led Controller 0.8.4 - 20/11/16'); });
 app.get('/sleep', function(req, res) { set_all(g_led_param_to_pulse('10')); res.send("Sleep"); });
 app.get('/:channel/:intensity', set_light );
 app.get('/rgb/:r/:g/:b/:a', set_rgb );
@@ -51,10 +51,26 @@ function set_light(req, res) {
 	  set_all( v_intensity );
   }
   else {
-	  pwm.setDutyCycle(ch, v_intensity);
+	  var n_ch = cross_fix(ch);
+
+	  var n_value = parseInt((255 * v_intensity) + 42);
+
+	  //pwm.setPulseRange(n_ch, n_value, 255 - n_value);
+	  pwm.setDutyCycle(n_ch, v_intensity);
+
+	if(n_ch == 12)
+	  pwm.setDutyCycle(15, v_intensity);
+	if(n_ch == 10)
+	  pwm.setDutyCycle(11, v_intensity);
+	if(n_ch == 13)
+	  pwm.setDutyCycle(14, v_intensity);
+
+	  console.log("Channel " + ch);
+	  console.log("NChannel " + n_ch);
+	  //console.log("Value " + n_value);
   }
 
-  res.send("Channel" + " {" + channel + "} " + " is set to " + v_intensity);
+  res.send("Channel" + " {" + n_ch + "} " + " is set to " + v_intensity);
 }
 
 function g_led_param_to_pulse(intensity)
@@ -82,7 +98,21 @@ function inverse(val)
 
 function validete_input(val)
 {
-	return (val > 0.99 ? 0.99 : val < 0.01 ? 0.01 : val);
+	return (val > 1.00 ? 1.00 : val < 0.00 ? 0.00 : val);
+}
+
+function cross_fix(ch)
+{
+	switch (ch) {
+		case '1':  return 13;
+		case '2':  return 9;
+		case '3':  return 8;
+		case '4':  return 12;
+		case '5':  return 10;
+		case '6':  return 2; // empty
+
+		default: return 1;
+	}
 }
 
 function set_all(intensity)
@@ -93,4 +123,11 @@ function set_all(intensity)
 	pwm.setDutyCycle(4, intensity);
 	pwm.setDutyCycle(5, intensity);
 	pwm.setDutyCycle(6, intensity);
+/*
+	pwm.setPulseRange(1, 4095 * intensity, 4095 * (1 - intensity));
+	pwm.setPulseRange(2, 4095 * intensity, 4095 * (1 - intensity));
+	pwm.setPulseRange(3, 4095 * intensity, 4095 * (1 - intensity));
+	pwm.setPulseRange(4, 4095 * intensity, 4095 * (1 - intensity));
+	pwm.setPulseRange(5, 4095 * intensity, 4095 * (1 - intensity));
+	pwm.setPulseRange(6, 4095 * intensity, 4095 * (1 - intensity));*/
 }
